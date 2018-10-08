@@ -54,12 +54,12 @@ bool OSystem_iOS7::pollEvent(Common::Event &event) {
 			if (!handleEvent_mouseDown(event, internalEvent.value1, internalEvent.value2))
 				return false;
 			break;
-
+/*
 		case kInputMouseUp:
 			if (!handleEvent_mouseUp(event, internalEvent.value1, internalEvent.value2))
 				return false;
 			break;
-
+*/
 		case kInputMouseDragged:
 			if (!handleEvent_mouseDragged(event, internalEvent.value1, internalEvent.value2))
 				return false;
@@ -76,7 +76,7 @@ bool OSystem_iOS7::pollEvent(Common::Event &event) {
 		case kInputApplicationResumed:
 			handleEvent_applicationResumed();
 			return false;
-
+/*
 		case kInputMouseSecondDragged:
 			if (!handleEvent_mouseSecondDragged(event, internalEvent.value1, internalEvent.value2))
 				return false;
@@ -91,7 +91,7 @@ bool OSystem_iOS7::pollEvent(Common::Event &event) {
 			if (!handleEvent_secondMouseUp(event, internalEvent.value1, internalEvent.value2))
 				return false;
 			break;
-
+*/
 		case kInputKeyPressed:
 			handleEvent_keyPressed(event, internalEvent.value1);
 			break;
@@ -105,6 +105,11 @@ bool OSystem_iOS7::pollEvent(Common::Event &event) {
 			if (!handleEvent_tap(event, (UIViewTapDescription) internalEvent.value1, internalEvent.value2))
 				return false;
 			break;
+            
+        case kInputLongPress:
+            if (!handleEvent_longPress(event, (UIViewLongPressEvent) internalEvent.value1, internalEvent.value2))
+                return false;
+            break;
 
 		default:
 			break;
@@ -116,27 +121,34 @@ bool OSystem_iOS7::pollEvent(Common::Event &event) {
 }
 
 bool OSystem_iOS7::handleEvent_mouseDown(Common::Event &event, int x, int y) {
-	//printf("Mouse down at (%u, %u)\n", x, y);
-
-	// Workaround: kInputMouseSecondToggled isn't always sent when the
-	// secondary finger is lifted. Need to make sure we get out of that mode.
-	_secondaryTapped = false;
-
-	if (_touchpadModeEnabled) {
-		_lastPadX = x;
-		_lastPadY = y;
-	} else
-		warpMouse(x, y);
-
-	if (_mouseClickAndDragEnabled) {
-		event.type = Common::EVENT_LBUTTONDOWN;
-		event.mouse.x = _videoContext->mouseX;
-		event.mouse.y = _videoContext->mouseY;
-		return true;
-	} else {
-		_lastMouseDown = getMillis();
-	}
-	return false;
+    printf("Mouse down at (%u, %u)\n", x, y);
+    
+    // Workaround: kInputMouseSecondToggled isn't always sent when the
+    // secondary finger is lifted. Need to make sure we get out of that mode.
+    _secondaryTapped = false;
+    
+    if (_touchpadModeEnabled) {
+        _lastPadX = x;
+        _lastPadY = y;
+    } else
+    {
+        event.type = Common::EVENT_MOUSEMOVE;
+        event.mouse.x = x;
+        event.mouse.y = y;
+        warpMouse(x, y);
+        return true;
+    }
+    /*
+     if (_mouseClickAndDragEnabled) {
+     event.type = Common::EVENT_LBUTTONDOWN;
+     event.mouse.x = _videoContext->mouseX;
+     event.mouse.y = _videoContext->mouseY;
+     return true;
+     } else {
+     _lastMouseDown = getMillis();
+     }
+     */
+    return false;
 }
 
 bool OSystem_iOS7::handleEvent_mouseUp(Common::Event &event, int x, int y) {
@@ -441,77 +453,42 @@ void  OSystem_iOS7::handleEvent_keyPressed(Common::Event &event, int keyPressed)
 }
 
 bool OSystem_iOS7::handleEvent_swipe(Common::Event &event, int direction, int touches) {
-	if (touches == 1) {
-		Common::KeyCode keycode = Common::KEYCODE_INVALID;
-		switch (_screenOrientation) {
-		case kScreenOrientationPortrait:
-			switch ((UIViewSwipeDirection)direction) {
-				case kUIViewSwipeUp:
-					keycode = Common::KEYCODE_UP;
-					break;
-				case kUIViewSwipeDown:
-					keycode = Common::KEYCODE_DOWN;
-					break;
-				case kUIViewSwipeLeft:
-					keycode = Common::KEYCODE_LEFT;
-					break;
-				case kUIViewSwipeRight:
-					keycode = Common::KEYCODE_RIGHT;
-					break;
-				default:
-					return false;
-			}
-			break;
-		case kScreenOrientationLandscape:
-			switch ((UIViewSwipeDirection)direction) {
-				case kUIViewSwipeUp:
-					keycode = Common::KEYCODE_LEFT;
-					break;
-				case kUIViewSwipeDown:
-					keycode = Common::KEYCODE_RIGHT;
-					break;
-				case kUIViewSwipeLeft:
-					keycode = Common::KEYCODE_DOWN;
-					break;
-				case kUIViewSwipeRight:
-					keycode = Common::KEYCODE_UP;
-					break;
-				default:
-					return false;
-			}
-			break;
-		case kScreenOrientationFlippedLandscape:
-			switch ((UIViewSwipeDirection)direction) {
-				case kUIViewSwipeUp:
-					keycode = Common::KEYCODE_RIGHT;
-					break;
-				case kUIViewSwipeDown:
-					keycode = Common::KEYCODE_LEFT;
-					break;
-				case kUIViewSwipeLeft:
-					keycode = Common::KEYCODE_UP;
-					break;
-				case kUIViewSwipeRight:
-					keycode = Common::KEYCODE_DOWN;
-					break;
-				default:
-					return false;
-			}
-			break;
-		}
-
-		event.kbd.keycode = _queuedInputEvent.kbd.keycode = keycode;
-		event.kbd.ascii = _queuedInputEvent.kbd.ascii = 0;
-		event.type = Common::EVENT_KEYDOWN;
-		_queuedInputEvent.type = Common::EVENT_KEYUP;
-		event.kbd.flags = _queuedInputEvent.kbd.flags = 0;
-		_queuedEventTime = getMillis() + kQueuedInputEventDelay;
-
-		return true;
-	}
+    if (touches == 1) {
+        Common::KeyCode keycode = Common::KEYCODE_INVALID;
+        switch ((UIViewSwipeDirection)direction) {
+            case kUIViewSwipeUp:
+                keycode = Common::KEYCODE_UP;
+                printf("Swipe up!\n");
+                break;
+            case kUIViewSwipeDown:
+                keycode = Common::KEYCODE_DOWN;
+                printf("Swipe down!\n");
+                break;
+            case kUIViewSwipeLeft:
+                keycode = Common::KEYCODE_LEFT;
+                printf("Swipe left!\n");
+                break;
+            case kUIViewSwipeRight:
+                keycode = Common::KEYCODE_RIGHT;
+                printf("Swipe right!\n");
+                break;
+            default:
+                return false;
+        }
+        
+        event.kbd.keycode = _queuedInputEvent.kbd.keycode = keycode;
+        event.kbd.ascii = _queuedInputEvent.kbd.ascii = 0;
+        event.type = Common::EVENT_KEYDOWN;
+        _queuedInputEvent.type = Common::EVENT_KEYUP;
+        event.kbd.flags = _queuedInputEvent.kbd.flags = 0;
+        _queuedEventTime = getMillis() + kQueuedInputEventDelay;
+        
+        return true;
+    }
 	else if (touches == 2) {
 		switch ((UIViewSwipeDirection)direction) {
 		case kUIViewSwipeUp: {
+            /*
 			_mouseClickAndDragEnabled = !_mouseClickAndDragEnabled;
 			const char *dialogMsg;
 			if (_mouseClickAndDragEnabled) {
@@ -521,6 +498,7 @@ bool OSystem_iOS7::handleEvent_swipe(Common::Event &event, int direction, int to
 				dialogMsg = _("Mouse-click-and-drag mode disabled.");
 			GUI::TimedMessageDialog dialog(dialogMsg, 1500);
 			dialog.runModal();
+            */
 			return false;
 		}
 
@@ -553,24 +531,77 @@ bool OSystem_iOS7::handleEvent_swipe(Common::Event &event, int direction, int to
 }
 
 bool OSystem_iOS7::handleEvent_tap(Common::Event &event, UIViewTapDescription type, int touches) {
-	if (touches == 1) {
-		if (type == kUIViewTapDouble) {
-			event.type = Common::EVENT_RBUTTONDOWN;
-			_queuedInputEvent.type = Common::EVENT_RBUTTONUP;
-			_queuedEventTime = getMillis() + kQueuedInputEventDelay;
-			return true;
-		}
-	}
-	else if (touches == 2) {
-		if (type == kUIViewTapDouble) {
-			event.kbd.keycode = _queuedInputEvent.kbd.keycode = Common::KEYCODE_ESCAPE;
-			event.kbd.ascii = _queuedInputEvent.kbd.ascii = Common::ASCII_ESCAPE;
-			event.type = Common::EVENT_KEYDOWN;
-			_queuedInputEvent.type = Common::EVENT_KEYUP;
-			event.kbd.flags = _queuedInputEvent.kbd.flags = 0;
-			_queuedEventTime = getMillis() + kQueuedInputEventDelay;
-			return true;
-		}
-	}
-	return false;
+    if (touches == 1) {
+        if (type == kUIViewTapSingle) {
+            printf("LMB Clicked!\n");
+            event.type = Common::EVENT_LBUTTONDOWN;
+            event.mouse.x = _queuedInputEvent.mouse.x = _videoContext->mouseX;
+            event.mouse.y = _queuedInputEvent.mouse.y = _videoContext->mouseY;
+            _queuedInputEvent.type = Common::EVENT_LBUTTONUP;
+            _queuedEventTime = getMillis() + kQueuedInputEventDelay;
+            return true;
+        }
+    }
+    else if (touches == 2) {
+        if (type == kUIViewTapDouble) {
+            event.kbd.keycode = _queuedInputEvent.kbd.keycode = Common::KEYCODE_ESCAPE;
+            event.kbd.ascii = _queuedInputEvent.kbd.ascii = Common::ASCII_ESCAPE;
+            event.type = Common::EVENT_KEYDOWN;
+            _queuedInputEvent.type = Common::EVENT_KEYUP;
+            event.kbd.flags = _queuedInputEvent.kbd.flags = 0;
+            _queuedEventTime = getMillis() + kQueuedInputEventDelay;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool OSystem_iOS7::handleEvent_longPress(Common::Event &event, UIViewLongPressEvent type, int taps) {
+    if (taps == 1) {
+        if (type == kUIViewLongPressStarted)
+        {
+            printf("RMB Clicked!\n");
+            event.type = Common::EVENT_RBUTTONDOWN;
+            event.mouse.x = _queuedInputEvent.mouse.x = _videoContext->mouseX;
+            event.mouse.y = _queuedInputEvent.mouse.y = _videoContext->mouseY;
+            _queuedInputEvent.type = Common::EVENT_RBUTTONUP;
+            _queuedEventTime = getMillis() + kQueuedInputEventDelay;
+            return true;
+        }
+        else if (type == kUIViewLongPressMoved)
+        {
+            return true;
+        }
+        else if (type == kUIViewLongPressReleased)
+        {
+            //printf("LMB Up!");
+            //event.type = Common::EVENT_LBUTTONUP;
+            //event.mouse.x = _videoContext->mouseX;
+            //event.mouse.y = _videoContext->mouseY;
+            return true;
+        }
+    } else if (taps == 2) {
+        if (type == kUIViewLongPressStarted)
+        {
+            printf("LMB Down!\n");
+            event.type = Common::EVENT_LBUTTONDOWN;
+            event.mouse.x = _videoContext->mouseX;
+            event.mouse.y = _videoContext->mouseY;
+            return true;
+        }
+        else if (type == kUIViewLongPressMoved)
+        {
+            return true;
+        }
+        else if (type == kUIViewLongPressReleased)
+        {
+            printf("LMB Up!\n");
+            event.type = Common::EVENT_LBUTTONUP;
+            event.mouse.x = _videoContext->mouseX;
+            event.mouse.y = _videoContext->mouseY;
+            return true;
+        }
+    }
+    
+    return false;
 }

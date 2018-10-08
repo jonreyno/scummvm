@@ -40,7 +40,8 @@ enum InputEvent {
 	kInputApplicationSuspended,
 	kInputApplicationResumed,
 	kInputSwipe,
-	kInputTap
+	kInputTap,
+    kInputLongPress
 };
 
 enum ScreenOrientation {
@@ -59,6 +60,12 @@ enum UIViewSwipeDirection {
 enum UIViewTapDescription {
 	kUIViewTapSingle = 1,
 	kUIViewTapDouble = 2
+};
+
+enum UIViewLongPressEvent {
+    kUIViewLongPressStarted = 1,
+    kUIViewLongPressMoved = 2,
+    kUIViewLongPressReleased = 3
 };
 
 enum GraphicsModes {

@@ -221,6 +221,7 @@ protected:
 
 	bool handleEvent_swipe(Common::Event &event, int direction, int touches);
 	bool handleEvent_tap(Common::Event &event, UIViewTapDescription type, int touches);
+    bool handleEvent_longPress(Common::Event &event, UIViewLongPressEvent type, int taps);
 	void handleEvent_keyPressed(Common::Event &event, int keyPressed);
 	void handleEvent_orientationChanged(int orientation);
 	void handleEvent_applicationSuspended();
