@@ -64,7 +64,7 @@ private:
 		std::string _filePath;
 		std::string _sourceTree;
 
-		FileProperty(const std::string &fileType = "", const std::string &name = "", const std::string &path = "", const std::string &source = "")
+		FileProperty(std::string fileType = "", std::string name = "", std::string path = "", std::string source = "")
 				: _fileEncoding(""), _lastKnownFileType(fileType), _fileName(name), _filePath(path), _sourceTree(source) {
 		}
 	};
