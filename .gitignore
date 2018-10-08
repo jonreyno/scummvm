@@ -231,3 +231,6 @@ psp2pkg/
 #Ignore gmon.out created by gprof
 gmon.out
 /scummvm_libs_2015
+*.xcbuild
+*.db
+devtools/create_project/xcode/build/XCBuildData/BuildDescriptionCacheIndex-3b98cf50f931ccae6b7ba694455637e9
